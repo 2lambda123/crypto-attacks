@@ -1,8 +1,8 @@
 from math import gcd
 from math import isqrt
-from random import randrange
 
 from sage.all import is_prime
+import secrets
 
 
 def factorize(N, phi):
@@ -35,7 +35,7 @@ def factorize_multi_prime(N, phi):
         # Element to factorize.
         N = factors[0]
 
-        w = randrange(2, N - 1)
+        w = secrets.SystemRandom().randrange(2, N - 1)
         i = 1
         while phi % (2 ** i) == 0:
             sqrt_1 = pow(w, phi // (2 ** i), N)
