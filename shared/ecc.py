@@ -1,6 +1,4 @@
 import logging
-from random import choice
-from random import randrange
 
 from sage.all import EllipticCurve
 from sage.all import GF
@@ -12,6 +10,7 @@ from sage.all import pari
 
 from shared import is_square
 from shared.complex_multiplication import solve_cm
+import secrets
 
 
 def get_embedding_degree(q, n, max_k):
@@ -48,7 +47,7 @@ def generate_anomalous_q(q, D=None, c=None):
     Ds = [-11, -19, -43, -67, -163] if D is None else [D]
     Ds = [D for D in Ds if (1 - 4 * q) % D == 0 and is_square((1 - 4 * q) // D)]
     assert len(Ds) > 0, "Invalid value for q and default values of D."
-    D = choice(Ds)
+    D = secrets.SystemRandom().choice(Ds)
     logging.info(f"Found appropriate D value = {D}")
     for E in solve_cm(D, q, c):
         if E.trace_of_frobenius() == 1:
@@ -74,9 +73,9 @@ def generate_anomalous(q_bit_length, D=None, c=None):
         # 4q = 1 - D(2m + 1)^2
         # 4q = 1 - D(4m^2 + 4m + 1)
         # q = -Dm^2 - Dm - (D + 1) / 4
-        D = choice(Ds)
+        D = secrets.SystemRandom().choice(Ds)
         m_bit_length = (q_bit_length - D.bit_length()) // 2 + 1
-        m = randrange(2 ** (m_bit_length - 1), 2 ** m_bit_length)
+        m = secrets.SystemRandom().randrange(2 ** (m_bit_length - 1), 2 ** m_bit_length)
         q = -D * m * (m + 1) + (-D + 1) // 4
         if q.bit_length() == q_bit_length and is_prime(q):
             yield from generate_anomalous_q(q, D, c)
@@ -138,7 +137,7 @@ def generate_with_trace(t, q_bit_length, D=None, c=None):
         # Idea:
         # 4q = t^2 - Dv^2
         # -> we simply try random values for v until a suitable q is found
-        v = randrange(2 ** (v_bit_length - 1), 2 ** v_bit_length)
+        v = secrets.SystemRandom().randrange(2 ** (v_bit_length - 1), 2 ** v_bit_length)
         q4 = t ** 2 - D * v ** 2
         if q4.bit_length() - 2 == q_bit_length and q4 % 4 == 0 and is_prime(q4 // 4):
             q = q4 // 4
@@ -312,7 +311,7 @@ def generate_mnt_k2(q_bit_length, D=None, c=None):
     z_bit_length = (x_bit_length - 1 - D.bit_length()) // 2 + 1
     assert z_bit_length > 0, "Invalid values for D and q bit length."
     while True:
-        z = randrange(2 ** (z_bit_length - 1), 2 ** z_bit_length)
+        z = secrets.SystemRandom().randrange(2 ** (z_bit_length - 1), 2 ** z_bit_length)
         x = 2 * (-D) * z ** 2 + 1
         q = (x ** 2 + 4 * x - 1) // 4
         r = (x + 1) // 2
